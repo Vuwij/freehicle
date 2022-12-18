@@ -1,0 +1,6 @@
+[submodule "soccer_localization"]
+	path = soccer_localization
+	url = git@github.com:utra-robosoccer/soccer_localization.git
+[submodule "external/soccerbot"]
+	path = external/soccerbot
+	url = git@github.com:utra-robosoccer/soccerbot.git

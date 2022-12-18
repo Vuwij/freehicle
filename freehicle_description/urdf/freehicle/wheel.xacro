@@ -1,0 +1,36 @@
+<robot name="hive" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="wheel" params="name origin dir_ns dir_ew">
+        <link name="$(arg tf_prefix)/wheel_${name}">
+            <inertial>
+                <mass value="1"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+                <inertia ixx="0.05" ixy="0" ixz="0"
+                         iyy="0.05" iyz="0"
+                         izz="0.05"/>
+            </inertial>
+            <collision name="collision">
+                <origin rpy="0 ${PI/2} 0" xyz="0 0 0"/>
+                <geometry>
+                    <cylinder radius="38e-3" length="4e-3" />
+                </geometry>
+            </collision>
+            <visual name="visual">
+                <origin rpy="0  0  0" xyz="0  0  0"/>
+                <geometry>
+                    <mesh filename="package://hive_description/meshes/hive_wheel.stl" scale="1 1 ${-dir_ew * dir_ns}"/>
+                </geometry>
+                <material name="black" />
+            </visual>
+        </link>
+
+        <joint name="$(arg tf_prefix)/wheel_${name}" type="continuous">
+            <parent link="${origin}"/>
+            <child link="$(arg tf_prefix)/wheel_${name}"/>
+            <origin rpy="0 0 0" xyz="${0.265 * dir_ew} ${0.142 * dir_ns} 0.038"/>
+            <axis xyz="-1 0 0"/>
+            <dynamics damping="${JOINT_DAMPING}" friction="${JOINT_FRICTION}" />
+            <limit effort="${MOTOR_MAX_TORQUE}" velocity="${MOTOR_MAX_VELOCITY}"/>
+        </joint>
+
+    </xacro:macro>
+</robot>
