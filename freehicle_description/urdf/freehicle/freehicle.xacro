@@ -5,6 +5,7 @@
     <xacro:property name="CENTER_TUBE_LENGTH" value="0.8382"/>
     <xacro:property name="FRONT_TUBE_LENGTH" value="0.4826"/>
     <xacro:property name="BACK_TUBE_LENGTH" value="0.28"/>
+    <xacro:property name="WHEEL_RADIUS" value="0.1016"/>
     <xacro:property name="PI" value="3.1415926"/>
 
     <xacro:include filename="$(find freehicle_description)/urdf/freehicle/wheel.xacro" />
@@ -90,7 +91,7 @@
 
     <xacro:wheel name="front_left" origin="front_left_link" radius="0.127" x_offset="0" y_offset="0" />
     <xacro:wheel name="front_right" origin="front_right_link" radius="0.127" x_offset="0" y_offset="0" />
-    <xacro:wheel name="back_left" origin="body" radius="0.1016" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="-${BACK_TUBE_LENGTH/2}" />
+    <xacro:wheel name="back_left" origin="body" radius="${WHEEL_RADIUS}" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="-${BACK_TUBE_LENGTH/2}" />
     <xacro:wheel name="back_right" origin="body" radius="0.1016" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="${BACK_TUBE_LENGTH/2}" />
 
 </robot>
