@@ -4,10 +4,7 @@ import os
 import time
 from os.path import expanduser
 
-from matplotlib import pyplot as plt
-
-if "ROS_NAMESPACE" not in os.environ:
-    os.environ["ROS_NAMESPACE"] = "/robot0"
+from sensor_msgs.msg import Image, CameraInfo
 
 import pybullet as pb
 import pybullet_data
@@ -15,6 +12,8 @@ import rospy
 
 if __name__ == "__main__":
     rospy.init_node("freehicle_control")
+    pub_camera = rospy.Publisher("camera/image_raw", Image, queue_size=1)
+    pub_camera_info = rospy.Publisher("camera/camera_info", CameraInfo, queue_size=1, latch=True)
 
     client_id = pb.connect(pb.GUI)
     pb.setAdditionalSearchPath(pybullet_data.getDataPath())  # optionally
@@ -33,11 +32,13 @@ if __name__ == "__main__":
     pybullet_id = pb.loadURDF(
         home
         + f"/catkin_ws/src/freehicle/freehicle_description/urdf/freehicle/freehicle.urdf",
-        useFixedBase=True,
+        useFixedBase=False,
         flags=pb.URDF_USE_INERTIA_FROM_FILE,
         basePosition=[0, 0, 0.1016],
         baseOrientation=[0, 0, 0, 1],
     )
+    motor_names = [pb.getJointInfo(pybullet_id, i)[1].decode("utf-8") for i in range(pb.getNumJoints(pybullet_id))]
+    print(motor_names)
 
     width = 640
     height = 480
@@ -50,29 +51,36 @@ if __name__ == "__main__":
     view_matrix = pb.computeViewMatrix([0, 0, 1], [2, 0, 0], [1, 0, 0])
     projection_matrix = pb.computeProjectionMatrixFOV(fov, aspect, near, far)
 
-    # Get depth values using the OpenGL renderer
-    images = pb.getCameraImage(width, height, view_matrix, projection_matrix, renderer=pb.ER_BULLET_HARDWARE_OPENGL)
-    depth_buffer_opengl = pb.reshape(images[3], [width, height])
-    depth_opengl = far * near / (far - (far - near) * depth_buffer_opengl)
 
-    # Get depth values using Tiny renderer
-    images = pb.getCameraImage(width, height, view_matrix, projection_matrix, renderer=pb.ER_TINY_RENDERER)
-    depth_buffer_tiny = pb.reshape(images[3], [width, height])
-    depth_tiny = far * near / (far - (far - near) * depth_buffer_tiny)
-
-    pb.disconnect()
-
-    # Plot both images - should show depth values of 0.45 over the cube and 0.5 over the plane
-    plt.subplot(1, 2, 1)
-    plt.imshow(depth_opengl, cmap='gray', vmin=0, vmax=1)
-    plt.title('OpenGL Renderer')
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(depth_tiny, cmap='gray', vmin=0, vmax=1)
-    plt.title('Tiny Renderer')
-
-    plt.show()
-    
     while(True):
-        pb.stepSimulation()
+        # Get depth values using the OpenGL renderer
+        width, length, rgbPixels, depthPixels, segmentationMaskBuffer = pb.getCameraImage(width, height, view_matrix, projection_matrix, renderer=pb.ER_BULLET_HARDWARE_OPENGL)
+
+        img_msg = Image()
+        img_msg.header.stamp = rospy.Time.now()
+        img_msg.header.frame_id = "/camera"
+        img_msg.height = height
+        img_msg.width = width
+        img_msg.encoding = b"bgra8"
+        img_msg.step = 4 * width
+        img_msg.data = rgbPixels
+        pub_camera.publish(img_msg)
+
         time.sleep(0.01)
+
+        control = [1, 1, 1]
+        pb.setJointMotorControlArray(
+            bodyIndex=pybullet_id,
+            controlMode=pb.VELOCITY_CONTROL,
+            jointIndices=[0, 1, 2, 3, 4, 5],
+            targetVelocities=[
+                control[0],
+                control[1],
+                control[0],
+                control[1],
+                control[2],
+                control[2],
+            ],
+            velocityGains=[0.4] * 6,
+        )
+        pb.stepSimulation()

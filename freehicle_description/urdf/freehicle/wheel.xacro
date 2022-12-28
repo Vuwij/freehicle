@@ -9,7 +9,7 @@
                          izz="0.05"/>
             </inertial>
             <collision name="collision">
-                <origin rpy="0 0 0" xyz="0 0 0"/>
+                <origin rpy="${PI/2} 0 0" xyz="0  0  0"/>
                 <geometry>
                     <cylinder radius="${radius}" length="0.05" />
                 </geometry>
