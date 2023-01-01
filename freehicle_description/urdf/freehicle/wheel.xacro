@@ -11,13 +11,13 @@
             <collision name="collision">
                 <origin rpy="${PI/2} 0 0" xyz="0  0  0"/>
                 <geometry>
-                    <cylinder radius="${radius}" length="0.05" />
+                    <cylinder radius="${radius}" length="0.01" />
                 </geometry>
             </collision>
             <visual name="visual">
                 <origin rpy="${PI/2} 0 0" xyz="0  0  0"/>
                 <geometry>
-                    <cylinder radius="${radius}" length="0.05" />
+                    <cylinder radius="${radius}" length="0.01" />
                 </geometry>
             </visual>
         </link>
@@ -25,6 +25,7 @@
         <joint name="wheel_${name}" type="continuous">
             <parent link="${origin}"/>
             <child link="wheel_${name}"/>
+            <dynamics damping="0.0" friction="0.0"/>
             <origin rpy="0 0 0" xyz="${x_offset} ${y_offset} 0"/>
             <axis xyz="0 1 0"/>
         </joint>

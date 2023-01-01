@@ -75,6 +75,25 @@
     <axis xyz="0 0 1"/>
     <limit effort="0" lower="-0.392699075" upper="0.392699075" velocity="0"/>
   </joint>
+  <link name="camera">
+    <inertial>
+      <mass value="0.01"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="1e-9" ixy="0.0" ixz="0.0" iyy="1e-9" iyz="0.0" izz="1e-9"/>
+    </inertial>
+    <visual name="center_tube">
+      <origin rpy="0 1.5707963 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.03" radius="0.03"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="camera" type="fixed">
+    <parent link="body"/>
+    <child link="camera"/>
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <axis xyz="0 0 1"/>
+  </joint>
   <link name="wheel_front_left">
     <inertial>
       <mass value="1"/>
@@ -84,19 +103,20 @@
     <collision name="collision">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.127"/>
+        <cylinder length="0.01" radius="0.127"/>
       </geometry>
     </collision>
     <visual name="visual">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.127"/>
+        <cylinder length="0.01" radius="0.127"/>
       </geometry>
     </visual>
   </link>
   <joint name="wheel_front_left" type="continuous">
     <parent link="front_left_link"/>
     <child link="wheel_front_left"/>
+    <dynamics damping="0.0" friction="0.0"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -109,19 +129,20 @@
     <collision name="collision">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.127"/>
+        <cylinder length="0.01" radius="0.127"/>
       </geometry>
     </collision>
     <visual name="visual">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.127"/>
+        <cylinder length="0.01" radius="0.127"/>
       </geometry>
     </visual>
   </link>
   <joint name="wheel_front_right" type="continuous">
     <parent link="front_right_link"/>
     <child link="wheel_front_right"/>
+    <dynamics damping="0.0" friction="0.0"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -134,19 +155,20 @@
     <collision name="collision">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1016"/>
+        <cylinder length="0.01" radius="0.1016"/>
       </geometry>
     </collision>
     <visual name="visual">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1016"/>
+        <cylinder length="0.01" radius="0.1016"/>
       </geometry>
     </visual>
   </link>
   <joint name="wheel_back_left" type="continuous">
     <parent link="body"/>
     <child link="wheel_back_left"/>
+    <dynamics damping="0.0" friction="0.0"/>
     <origin rpy="0 0 0" xyz="-0.4191 -0.14 0"/>
     <axis xyz="0 1 0"/>
   </joint>
@@ -159,19 +181,20 @@
     <collision name="collision">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1016"/>
+        <cylinder length="0.01" radius="0.1016"/>
       </geometry>
     </collision>
     <visual name="visual">
       <origin rpy="1.5707963 0 0" xyz="0  0  0"/>
       <geometry>
-        <cylinder length="0.05" radius="0.1016"/>
+        <cylinder length="0.01" radius="0.1016"/>
       </geometry>
     </visual>
   </link>
   <joint name="wheel_back_right" type="continuous">
     <parent link="body"/>
     <child link="wheel_back_right"/>
+    <dynamics damping="0.0" friction="0.0"/>
     <origin rpy="0 0 0" xyz="-0.4191 0.14 0"/>
     <axis xyz="0 1 0"/>
   </joint>

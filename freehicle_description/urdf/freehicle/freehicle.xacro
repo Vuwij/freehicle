@@ -89,9 +89,32 @@
         <limit effort="0" velocity="0" lower="-${PI/8}" upper="${PI/8}" />
     </joint>
 
+    <link name="camera">
+        <inertial>
+            <mass value="0.01"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <inertia ixx="1e-9" ixy="0.0" ixz="0.0"
+                     iyy="1e-9" iyz="0.0"
+                     izz="1e-9"/>
+        </inertial>
+            <visual name="center_tube">
+            <origin rpy="0 ${PI/2} 0" xyz="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.03" length="0.03" />
+            </geometry>
+        </visual>
+    </link>
+    <joint name="camera" type="fixed">
+        <parent link="body"/>
+        <child link="camera"/>
+        <origin rpy="0 0 0" xyz="0 0 0.5"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+
     <xacro:wheel name="front_left" origin="front_left_link" radius="0.127" x_offset="0" y_offset="0" />
     <xacro:wheel name="front_right" origin="front_right_link" radius="0.127" x_offset="0" y_offset="0" />
     <xacro:wheel name="back_left" origin="body" radius="${WHEEL_RADIUS}" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="-${BACK_TUBE_LENGTH/2}" />
-    <xacro:wheel name="back_right" origin="body" radius="0.1016" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="${BACK_TUBE_LENGTH/2}" />
+    <xacro:wheel name="back_right" origin="body" radius="${WHEEL_RADIUS}" x_offset="-${CENTER_TUBE_LENGTH/2}" y_offset="${BACK_TUBE_LENGTH/2}" />
 
 </robot>
