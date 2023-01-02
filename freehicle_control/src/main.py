@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import os
-import time
 from os.path import expanduser
 
+import numpy as np
+import tf
 from cv_bridge import CvBridge
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image, CameraInfo
 
 import pybullet as pb
@@ -17,6 +18,10 @@ if __name__ == "__main__":
     rospy.init_node("freehicle_control")
     pub_camera = rospy.Publisher("camera/image_raw", Image, queue_size=1)
     pub_camera_info = rospy.Publisher("camera/camera_info", CameraInfo, queue_size=1, latch=True)
+
+    pub_odometry = rospy.Publisher("odom", Odometry, queue_size=1)
+    pub_odometry_gt = rospy.Publisher("odom_ground_truth", Odometry, queue_size=1)
+
     rospy.set_param("/use_sim_time", False)
 
     client_id = pb.connect(pb.GUI)
@@ -58,19 +63,51 @@ if __name__ == "__main__":
 
     projection_matrix = pb.computeProjectionMatrixFOV(fov, aspect, near, far)
 
+    br = tf.TransformBroadcaster()
+
     t = 0
     r = rospy.Rate(1 / 0.004)
     cvbridge = CvBridge()
 
+    pos_prev = Transformation()
+    pose_start = Transformation()
     while(True):
         # Get depth values using the OpenGL renderer
-        camera_position = pb.getLinkState(pybullet_id, 4)[0]
-        camera_angle = pb.getLinkState(pybullet_id, 4)[1]
-        camera_transform = Transformation(camera_position, camera_angle)
+        camera_pos = pb.getLinkState(pybullet_id, 4)
+        camera_transform = Transformation(camera_pos[0], camera_pos[1])
         target_position = Transformation(position=[1, 0, -0.5])
         target_camera_position = camera_transform @ target_position
 
-        view_matrix = pb.computeViewMatrix(cameraEyePosition=camera_position, cameraTargetPosition=target_camera_position.position, cameraUpVector=[0, 0, 1])
+        base_pos = pb.getLinkState(pybullet_id, 0)
+
+        pos = Transformation(position=base_pos[0], quaternion=base_pos[1])
+        pos_diff = np.linalg.inv(pos_prev) @ pos
+        pos_prev = pos
+        rand = np.random.default_rng().multivariate_normal([0, 0, 0], np.diag([0.00001, 0, 0.0001]))
+
+        pose_start = pose_start @ pos_diff @ Transformation(pos_theta=rand)
+
+        o = Odometry()
+        o.header.frame_id = "map"
+        o.header.stamp = rospy.Time.now()
+        o.pose.pose = pose_start.pose
+        pub_odometry.publish(o)
+
+
+        o = Odometry()
+        o.header.frame_id = "map"
+        o.header.stamp = rospy.Time.now()
+        o.pose.pose = pos.pose
+        pub_odometry_gt.publish(o)
+
+        br.sendTransform(pos.position,
+                         pos.quaternion,
+                         rospy.Time.now(),
+                         "body",
+                         "map")
+
+
+        view_matrix = pb.computeViewMatrix(cameraEyePosition=camera_pos[0], cameraTargetPosition=target_camera_position.position, cameraUpVector=[0, 0, 1])
         width, length, rgbPixels, depthPixels, segmentationMaskBuffer = pb.getCameraImage(width, height, view_matrix, projection_matrix, renderer=pb.ER_BULLET_HARDWARE_OPENGL)
 
         img_msg = cvbridge.cv2_to_imgmsg(rgbPixels)
