@@ -2,6 +2,7 @@
 
 from os.path import expanduser
 
+import cv2
 import numpy as np
 import tf
 from cv_bridge import CvBridge
@@ -109,8 +110,9 @@ if __name__ == "__main__":
 
         view_matrix = pb.computeViewMatrix(cameraEyePosition=camera_pos[0], cameraTargetPosition=target_camera_position.position, cameraUpVector=[0, 0, 1])
         width, length, rgbPixels, depthPixels, segmentationMaskBuffer = pb.getCameraImage(width, height, view_matrix, projection_matrix, renderer=pb.ER_BULLET_HARDWARE_OPENGL)
+        rgbPixels = cv2.cvtColor(rgbPixels, cv2.COLOR_RGBA2RGB)
 
-        img_msg = cvbridge.cv2_to_imgmsg(rgbPixels)
+        img_msg = cvbridge.cv2_to_imgmsg(rgbPixels, encoding="bgr8")
         pub_camera.publish(img_msg)
 
         if t < 1:

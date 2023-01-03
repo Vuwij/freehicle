@@ -5,4 +5,6 @@
     <arg name="rvizconfig" default="$(find freehicle)/rviz/freehicle.rviz" />
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" output="screen" />
 
+    <!-- prettier-ignore -->
+    <node pkg="rosbag" type="record" name="rosbag" args="-a -O $(find freehicle)/bags/data.bag" />
 </launch>
